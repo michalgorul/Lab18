@@ -10,7 +10,8 @@ namespace examples
     void loadAudioFileAndPrintSummary();
     void loadAudioFileAndProcessSamples();
     void echoEffect(AudioFile<double> &audioFile, float &gain);
-    void threeEchoEffect(AudioFile<double>& audioFile, float& gain);
+    void fourEchoEffect(AudioFile<double>& audioFile, float& gain);
+    void reverbffect(AudioFile<double>& audioFile, float& decay);
 }
 
 //=======================================================================
@@ -131,12 +132,15 @@ namespace examples
         // 3. Let's apply a gain to every audio sample
 
         float gain = 0.5f;     
+        float decay = 0.45f;     
 
         // 4. do something here to fill the buffer with samples, e.g. echo
 
-       examples::echoEffect(audioFile, gain);
+        examples::echoEffect(audioFile, gain);
 
-        //examples::threeEchoEffect(audioFile, gain);
+        //examples::fourEchoEffect(audioFile, gain);
+
+        //examples::reverbffect(audioFile, decay);
 
         //---------------------------------------------------------------
         // 5. Write audio file to disk
@@ -177,11 +181,12 @@ namespace examples
         }
     }
 
-    void threeEchoEffect(AudioFile<double>& audioFile, float& gain)
+    void fourEchoEffect(AudioFile<double>& audioFile, float& gain)
     {
-        int echooffset1 = 22050;     // 1 sec
-        int echooffset2 = 44100;     // 0.5 sec
+        int echooffset1 = 22050;     // 0.5 sec
+        int echooffset2 = 44100;     // 1 sec
         int echooffset3 = 66150;     // 1.5 sec
+        int echooffset4 = 88200;     // 2 sec
 
         AudioFile<double>::AudioBuffer buffer1;
         buffer1.resize(2);
@@ -198,6 +203,11 @@ namespace examples
         buffer3[0].resize(audioFile.getNumSamplesPerChannel());
         buffer3[1].resize(audioFile.getNumSamplesPerChannel());
 
+        AudioFile<double>::AudioBuffer buffer4;
+        buffer4.resize(2);
+        buffer4[0].resize(audioFile.getNumSamplesPerChannel());
+        buffer4[1].resize(audioFile.getNumSamplesPerChannel());
+
         for (int i = 0; i < audioFile.getNumSamplesPerChannel(); i++)
         {
 
@@ -207,17 +217,23 @@ namespace examples
             if (echooffset1++ >= audioFile.getNumSamplesPerChannel() - 1)
                 echooffset1 = 0;
 
-            buffer2[0][echooffset2] = audioFile.samples[0][i] * gain * 0.75;
-            buffer2[1][echooffset2] = audioFile.samples[1][i] * gain * 0.75;
+            buffer2[0][echooffset2] = audioFile.samples[0][i] * gain * 0.8;
+            buffer2[1][echooffset2] = audioFile.samples[1][i] * gain * 0.8;
 
             if (echooffset2++ >= audioFile.getNumSamplesPerChannel() - 1)
                 echooffset2 = 0;
 
-            buffer3[0][echooffset3] = audioFile.samples[0][i] * gain * 0.5;
-            buffer3[1][echooffset3] = audioFile.samples[1][i] * gain * 0.5;
+            buffer3[0][echooffset3] = audioFile.samples[0][i] * gain * 0.6;
+            buffer3[1][echooffset3] = audioFile.samples[1][i] * gain * 0.6;
 
             if (echooffset3++ >= audioFile.getNumSamplesPerChannel() - 1)
                 echooffset3 = 0;
+
+            buffer4[0][echooffset4] = audioFile.samples[0][i] * gain * 0.4;
+            buffer4[1][echooffset4] = audioFile.samples[1][i] * gain * 0.4;
+
+            if (echooffset4++ >= audioFile.getNumSamplesPerChannel() - 1)
+                echooffset4 = 0;
 
             
         }
@@ -225,9 +241,21 @@ namespace examples
         for (int i = 0; i < audioFile.getNumSamplesPerChannel(); i++)
         {
 
-            audioFile.samples[0][i] += buffer1[0][i] + buffer2[0][i] + buffer3[0][i];
-            audioFile.samples[1][i] += buffer1[1][i] + buffer2[1][i] + buffer3[1][i];
+            audioFile.samples[0][i] += buffer1[0][i] + buffer2[0][i] + buffer3[0][i] + buffer4[0][i];
+            audioFile.samples[1][i] += buffer1[1][i] + buffer2[1][i] + buffer3[1][i] + buffer4[0][i];
 
         }
+    }
+
+    void reverbffect(AudioFile<double>& audioFile, float& decay)
+    {
+        int echoOffset = 3000;     // 68 ms
+
+        for (int i = 0; i < audioFile.getNumSamplesPerChannel() - echoOffset - 1; i++)
+        {
+            audioFile.samples[0][echoOffset + i] += audioFile.samples[0][i] * decay;
+            audioFile.samples[1][echoOffset + i] += audioFile.samples[1][i] * decay;
+        }
+
     }
 }
