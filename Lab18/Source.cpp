@@ -9,6 +9,8 @@ namespace examples
     void writeSineWaveToAudioFile();
     void loadAudioFileAndPrintSummary();
     void loadAudioFileAndProcessSamples();
+    void echoEffect(AudioFile<double> &audioFile, float &gain);
+    void threeEchoEffect(AudioFile<double>& audioFile, float& gain);
 }
 
 //=======================================================================
@@ -118,8 +120,9 @@ namespace examples
         //---------------------------------------------------------------
         // 2. Create an AudioFile object and load the audio file
 
-       // AudioFile<float> a;
-       // bool loadedOK = a.load(inputFilePath);
+        AudioFile<double> audioFile;
+        bool loadedOK = audioFile.load(inputFilePath);
+        assert(loadedOK);
 
         /** If you hit this assert then the file path above
          probably doesn't refer to a valid audio file */
@@ -127,14 +130,24 @@ namespace examples
         //---------------------------------------------------------------
         // 3. Let's apply a gain to every audio sample
 
-        float gain = 0.5f;
+        float gain = 0.5f;     
 
+        // 4. do something here to fill the buffer with samples, e.g. echo
 
-        // 1. Create an AudioBuffer 
-// (BTW, AudioBuffer is just a vector of vectors)
-        AudioFile<double> audioFile;
-        bool loadedOK = audioFile.load(inputFilePath);
-        assert(loadedOK);
+       examples::echoEffect(audioFile, gain);
+
+        //examples::threeEchoEffect(audioFile, gain);
+
+        //---------------------------------------------------------------
+        // 5. Write audio file to disk
+
+        std::string outputFilePath = "echo.wav"; // change this to somewhere useful for you
+        audioFile.save(outputFilePath, AudioFileFormat::Aiff);
+    }
+
+    void echoEffect(AudioFile<double> &audioFile, float &gain)
+    {
+        int echooffset = 44100;     // 1 sec
 
         AudioFile<double>::AudioBuffer buffer;
 
@@ -145,49 +158,76 @@ namespace examples
         buffer[0].resize(audioFile.getNumSamplesPerChannel());
         buffer[1].resize(audioFile.getNumSamplesPerChannel());
 
-        // 4. do something here to fill the buffer with samples, e.g.
+        for (int i = 0; i < audioFile.getNumSamplesPerChannel(); i++)
+        {
 
-// then...
+            buffer[0][echooffset] = audioFile.samples[0][i] * gain;
+            buffer[1][echooffset] = audioFile.samples[1][i] * gain;
 
-        int numChannels = 2;
-        int numSamplesPerChannel = 44100;
-        float sampleRate = 44100.f;
-        //float frequency = 440.f;
-
-
-        int ECHO = audioFile.getNumSamplesPerChannel();
-
-        int echooffset = 44100; // chenge to delay more example int echooffset=1024*6;
-        int echooffsetplay = 44100;
-
+            if (echooffset++ >= audioFile.getNumSamplesPerChannel() - 1)
+                echooffset = 0;
+        }
 
         for (int i = 0; i < audioFile.getNumSamplesPerChannel(); i++)
         {
 
-            float sample = (audioFile.samples[0][i] + audioFile.samples[1][i]) / 2;
+            audioFile.samples[0][i] += buffer[0][i];
+            audioFile.samples[1][i] += buffer[1][i];
+
+        }
+    }
+
+    void threeEchoEffect(AudioFile<double>& audioFile, float& gain)
+    {
+        int echooffset1 = 22050;     // 1 sec
+        int echooffset2 = 44100;     // 0.5 sec
+        int echooffset3 = 66150;     // 1.5 sec
+
+        AudioFile<double>::AudioBuffer buffer1;
+        buffer1.resize(2);
+        buffer1[0].resize(audioFile.getNumSamplesPerChannel());
+        buffer1[1].resize(audioFile.getNumSamplesPerChannel());
+
+        AudioFile<double>::AudioBuffer buffer2;
+        buffer2.resize(2);
+        buffer2[0].resize(audioFile.getNumSamplesPerChannel());
+        buffer2[1].resize(audioFile.getNumSamplesPerChannel());
+
+        AudioFile<double>::AudioBuffer buffer3;
+        buffer3.resize(2);
+        buffer3[0].resize(audioFile.getNumSamplesPerChannel());
+        buffer3[1].resize(audioFile.getNumSamplesPerChannel());
+
+        for (int i = 0; i < audioFile.getNumSamplesPerChannel(); i++)
+        {
+
+            buffer1[0][echooffset1] = audioFile.samples[0][i] * gain;
+            buffer1[1][echooffset1] = audioFile.samples[1][i] * gain;
+
+            if (echooffset1++ >= audioFile.getNumSamplesPerChannel() - 1)
+                echooffset1 = 0;
+
+            buffer2[0][echooffset2] = audioFile.samples[0][i] * gain * 0.75;
+            buffer2[1][echooffset2] = audioFile.samples[1][i] * gain * 0.75;
+
+            if (echooffset2++ >= audioFile.getNumSamplesPerChannel() - 1)
+                echooffset2 = 0;
+
+            buffer3[0][echooffset3] = audioFile.samples[0][i] * gain * 0.5;
+            buffer3[1][echooffset3] = audioFile.samples[1][i] * gain * 0.5;
+
+            if (echooffset3++ >= audioFile.getNumSamplesPerChannel() - 1)
+                echooffset3 = 0;
+
             
-
-            buffer[0][echooffset] = audioFile.samples[0][i] * 0.5;
-            buffer[1][echooffset] = audioFile.samples[1][i] * 0.5;
-            
-            if (echooffset++ >= ECHO - 1)
-                echooffset = 0;
-
-            audioFile.samples[0][i] += buffer[0][echooffsetplay] * 0.4;// amount to mix into dry
-            audioFile.samples[1][i] += buffer[1][echooffsetplay] * 0.4;// amount to mix into dry
-
-            if (echooffsetplay++ >= ECHO - 1)
-                echooffsetplay = 0;
-
- 
         }
 
-        audioFile.setAudioBuffer(buffer);
+        for (int i = 0; i < audioFile.getNumSamplesPerChannel(); i++)
+        {
 
-        //---------------------------------------------------------------
-        // 4. Write audio file to disk
+            audioFile.samples[0][i] += buffer1[0][i] + buffer2[0][i] + buffer3[0][i];
+            audioFile.samples[1][i] += buffer1[1][i] + buffer2[1][i] + buffer3[1][i];
 
-        std::string outputFilePath = "quieter-audio-filer.wav"; // change this to somewhere useful for you
-        audioFile.save(outputFilePath, AudioFileFormat::Aiff);
+        }
     }
 }

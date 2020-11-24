@@ -1,20 +1,15 @@
 ﻿  Source.cpp
-C:\Users\micha\source\repos\Lab18\Lab18\Source.cpp(63,44): warning C4244: '=': conversion from 'double' to '_Ty', possible loss of data
+C:\Users\micha\source\repos\Lab18\Lab18\Source.cpp(65,44): warning C4244: '=': conversion from 'double' to '_Ty', possible loss of data
           with
           [
               _Ty=float
           ]
-C:\Users\micha\source\repos\Lab18\Lab18\Source.cpp(167,26): warning C4244: 'initializing': conversion from '_Ty' to 'float', possible loss of data
-          with
-          [
-              _Ty=double
-          ]
 C:\Users\micha\source\repos\Lab18\Lab18\AudioFile.h(1196,14): warning C4018: '<': signed/unsigned mismatch
-C:\Users\micha\source\repos\Lab18\Lab18\AudioFile.h(1187): message : while compiling class template member function 'int AudioFile<float>::getIndexOfChunk(std::vector<uint8_t,std::allocator<uint8_t>> &,const std::string &,int,AudioFile<float>::Endianness)'
-C:\Users\micha\source\repos\Lab18\Lab18\AudioFile.h(495): message : see reference to function template instantiation 'int AudioFile<float>::getIndexOfChunk(std::vector<uint8_t,std::allocator<uint8_t>> &,const std::string &,int,AudioFile<float>::Endianness)' being compiled
-C:\Users\micha\source\repos\Lab18\Lab18\AudioFile.h(1124): message : while compiling class template member function 'AudioFileFormat AudioFile<float>::determineAudioFileFormat(std::vector<uint8_t,std::allocator<uint8_t>> &)'
-C:\Users\micha\source\repos\Lab18\Lab18\AudioFile.h(466): message : see reference to function template instantiation 'AudioFileFormat AudioFile<float>::determineAudioFileFormat(std::vector<uint8_t,std::allocator<uint8_t>> &)' being compiled
-C:\Users\micha\source\repos\Lab18\Lab18\AudioFile.h(267): message : while compiling class template member function 'AudioFile<float>::AudioFile(void)'
-C:\Users\micha\source\repos\Lab18\Lab18\Source.cpp(46): message : see reference to function template instantiation 'AudioFile<float>::AudioFile(void)' being compiled
-C:\Users\micha\source\repos\Lab18\Lab18\Source.cpp(46): message : see reference to class template instantiation 'AudioFile<float>' being compiled
+C:\Users\micha\source\repos\Lab18\Lab18\AudioFile.h(1187): message : while compiling class template member function 'int AudioFile<double>::getIndexOfChunk(std::vector<uint8_t,std::allocator<uint8_t>> &,const std::string &,int,AudioFile<double>::Endianness)'
+C:\Users\micha\source\repos\Lab18\Lab18\AudioFile.h(495): message : see reference to function template instantiation 'int AudioFile<double>::getIndexOfChunk(std::vector<uint8_t,std::allocator<uint8_t>> &,const std::string &,int,AudioFile<double>::Endianness)' being compiled
+C:\Users\micha\source\repos\Lab18\Lab18\AudioFile.h(1124): message : while compiling class template member function 'AudioFileFormat AudioFile<double>::determineAudioFileFormat(std::vector<uint8_t,std::allocator<uint8_t>> &)'
+C:\Users\micha\source\repos\Lab18\Lab18\AudioFile.h(466): message : see reference to function template instantiation 'AudioFileFormat AudioFile<double>::determineAudioFileFormat(std::vector<uint8_t,std::allocator<uint8_t>> &)' being compiled
+C:\Users\micha\source\repos\Lab18\Lab18\AudioFile.h(267): message : while compiling class template member function 'AudioFile<double>::AudioFile(void)'
+C:\Users\micha\source\repos\Lab18\Lab18\Source.cpp(123): message : see reference to function template instantiation 'AudioFile<double>::AudioFile(void)' being compiled
+C:\Users\micha\source\repos\Lab18\Lab18\Source.cpp(123): message : see reference to class template instantiation 'AudioFile<double>' being compiled
   Lab18.vcxproj -> C:\Users\micha\source\repos\Lab18\Debug\Lab18.exe
