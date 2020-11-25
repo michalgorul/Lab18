@@ -11,6 +11,7 @@ namespace examples
     void loadAudioFileAndProcessSamples();
     void echoEffect(AudioFile<double> &audioFile, float &gain);
     void fourEchoEffect(AudioFile<double>& audioFile, float& gain);
+    void fourEchoEffectCleaner(AudioFile<double>& audioFile, float& gain);
     void reverbffect(AudioFile<double>& audioFile, float& decay);
 }
 
@@ -136,22 +137,24 @@ namespace examples
 
         // 4. do something here to fill the buffer with samples, e.g. echo
 
-        examples::echoEffect(audioFile, gain);
+        //examples::echoEffect(audioFile, gain);
 
         //examples::fourEchoEffect(audioFile, gain);
+
+        examples::fourEchoEffectCleaner(audioFile, gain);
 
         //examples::reverbffect(audioFile, decay);
 
         //---------------------------------------------------------------
         // 5. Write audio file to disk
 
-        std::string outputFilePath = "echo.wav"; // change this to somewhere useful for you
+        std::string outputFilePath = "four-echo.wav"; // change this to somewhere useful for you
         audioFile.save(outputFilePath, AudioFileFormat::Aiff);
     }
 
     void echoEffect(AudioFile<double> &audioFile, float &gain)
     {
-        int echooffset = 44100;     // 1 sec
+        int echoOffset = 44100;     // 1 sec
 
         AudioFile<double>::AudioBuffer buffer;
 
@@ -165,11 +168,45 @@ namespace examples
         for (int i = 0; i < audioFile.getNumSamplesPerChannel(); i++)
         {
 
-            buffer[0][echooffset] = audioFile.samples[0][i] * gain;
-            buffer[1][echooffset] = audioFile.samples[1][i] * gain;
+            buffer[0][echoOffset] = audioFile.samples[0][i] * gain;
+            buffer[1][echoOffset] = audioFile.samples[1][i] * gain;
 
-            if (echooffset++ >= audioFile.getNumSamplesPerChannel() - 1)
-                echooffset = 0;
+            if (echoOffset++ >= audioFile.getNumSamplesPerChannel() - 1)
+                echoOffset = 0;
+        }
+
+        for (int i = 0; i < audioFile.getNumSamplesPerChannel(); i++)
+        {
+
+            audioFile.samples[0][i] += buffer[0][i];
+            audioFile.samples[1][i] += buffer[1][i];
+
+        }
+    }
+
+    void fourEchoEffectCleaner(AudioFile<double>& audioFile, float& gain)
+    {
+        int echoOffset = 22050;     // 1 sec
+
+        AudioFile<double>::AudioBuffer buffer;
+
+        // 2. Set to (e.g.) two channels
+        buffer.resize(2);
+
+        // 3. Set number of samples per channel
+        buffer[0].resize(audioFile.getNumSamplesPerChannel());
+        buffer[1].resize(audioFile.getNumSamplesPerChannel());
+
+        for (int i = 0; i < audioFile.getNumSamplesPerChannel() - 1 - (4*echoOffset); i++)
+        {
+
+            for (int j = 1; j < 5; j++)
+            {
+                buffer[0][(echoOffset * j) + i] = audioFile.samples[0][i] * gain;
+                buffer[1][(echoOffset * j) + i] = audioFile.samples[1][i] * gain;
+            }
+
+           
         }
 
         for (int i = 0; i < audioFile.getNumSamplesPerChannel(); i++)
