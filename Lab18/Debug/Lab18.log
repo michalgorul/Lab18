@@ -5,6 +5,6 @@ C:\Users\kamil\source\repos\Lab18\Lab18\Lab18\AudioFile.h(495): message : see re
 C:\Users\kamil\source\repos\Lab18\Lab18\Lab18\AudioFile.h(1124): message : while compiling class template member function 'AudioFileFormat AudioFile<double>::determineAudioFileFormat(std::vector<uint8_t,std::allocator<uint8_t>> &)'
 C:\Users\kamil\source\repos\Lab18\Lab18\Lab18\AudioFile.h(466): message : see reference to function template instantiation 'AudioFileFormat AudioFile<double>::determineAudioFileFormat(std::vector<uint8_t,std::allocator<uint8_t>> &)' being compiled
 C:\Users\kamil\source\repos\Lab18\Lab18\Lab18\AudioFile.h(267): message : while compiling class template member function 'AudioFile<double>::AudioFile(void)'
-C:\Users\kamil\source\repos\Lab18\Lab18\Lab18\Source.cpp(37): message : see reference to function template instantiation 'AudioFile<double>::AudioFile(void)' being compiled
-C:\Users\kamil\source\repos\Lab18\Lab18\Lab18\Source.cpp(37): message : see reference to class template instantiation 'AudioFile<double>' being compiled
+C:\Users\kamil\source\repos\Lab18\Lab18\Lab18\Source.cpp(29): message : see reference to function template instantiation 'AudioFile<double>::AudioFile(void)' being compiled
+C:\Users\kamil\source\repos\Lab18\Lab18\Lab18\Source.cpp(29): message : see reference to class template instantiation 'AudioFile<double>' being compiled
   Lab18.vcxproj -> C:\Users\kamil\source\repos\Lab18\Lab18\Debug\Lab18.exe
