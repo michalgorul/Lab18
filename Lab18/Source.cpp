@@ -46,93 +46,94 @@ void loadAudioFileAndProcessSamples()
 
 void echoEffect(AudioFile<double> &audioFile, float &gain)
 {
-    int echoOffset = 44100;     // 1 sec
+    int echoOffset = 44100;                                     // 1 sec offset
 
-    AudioFile<double>::AudioBuffer buffer;
+    AudioFile<double>::AudioBuffer buffer;                      // declaring a buffer
 
-    buffer.resize(2);
+    buffer.resize(2);                                           // buffer has also two channels
 
-    buffer[0].resize(audioFile.getNumSamplesPerChannel());
+    buffer[0].resize(audioFile.getNumSamplesPerChannel());      // buffer size is the same as input
     buffer[1].resize(audioFile.getNumSamplesPerChannel());
 
     for (int i = 0; i < audioFile.getNumSamplesPerChannel() - 1; i++)
     {
-        buffer[0][echoOffset] = audioFile.samples[0][i] * gain;
-        buffer[1][echoOffset] = audioFile.samples[1][i] * gain;
-
+        buffer[0][echoOffset] = audioFile.samples[0][i] * gain;     // buffer plus offset equals value
+        buffer[1][echoOffset] = audioFile.samples[1][i] * gain;     // of input at the same place, but
+                                                                    // it is twice quieter
         echoOffset++;
 
-        if (echoOffset >= audioFile.getNumSamplesPerChannel() - 1 || echoOffset > 44100 * 2)
-            break;
+        if (echoOffset >= audioFile.getNumSamplesPerChannel() - 1 || // if offset is bigger than
+            echoOffset > 44100 * 2)                                  // input size - break
+            break;  
     }
 
     for (int i = 0; i < audioFile.getNumSamplesPerChannel(); i++)
     {
-        audioFile.samples[0][i] += buffer[0][i];
-        audioFile.samples[1][i] += buffer[1][i];
-    }
+        audioFile.samples[0][i] += buffer[0][i];                    // adding buffer to input file
+        audioFile.samples[1][i] += buffer[1][i];                    // to get echo effect
+    }   
 }
 
 void fourEchoEffectCleaner(AudioFile<double>& audioFile, float& gain)
 {
     const int offset = 44100;
-    int echoOffset = 44100;     // 1 sec
+    int echoOffset = 44100;                                         // 1 sec offset
 
     AudioFile<double>::AudioBuffer buffer;
 
-    buffer.resize(2);
+    buffer.resize(2);                                               // buffer has also two channels
 
-    buffer[0].resize(audioFile.getNumSamplesPerChannel());
+    buffer[0].resize(audioFile.getNumSamplesPerChannel());          // buffer size is the same as input
     buffer[1].resize(audioFile.getNumSamplesPerChannel());
     
     for (int i = 0; i < audioFile.getNumSamplesPerChannel() - 1; i++)
     {
         echoOffset = offset + i;
-        for (int j = 1; j < 5; j++)
+        for (int j = 1; j < 5; j++)                                     // a loop to get a 4-echo
         {
-            if (echoOffset >= audioFile.getNumSamplesPerChannel() - 1)
-                break;
+            if (echoOffset >= audioFile.getNumSamplesPerChannel() - 1)  // if offset is bigger than
+                break;                                                  // input size - break
 
-            buffer[0][echoOffset] += audioFile.samples[0][i] * gain;
-            buffer[1][echoOffset] += audioFile.samples[1][i] * gain;
-
-            echoOffset += offset;
+            buffer[0][echoOffset] += audioFile.samples[0][i] * gain;    // buffer plus offset equals value
+            buffer[1][echoOffset] += audioFile.samples[1][i] * gain;    // of input at the same place plus itself,
+                                                                        // but it is twice quieter
+            echoOffset += offset;                                       
         }
     }
 
     for (int i = 0; i < audioFile.getNumSamplesPerChannel() - 1; i++)
     {
-        audioFile.samples[0][i] += buffer[0][i];
-        audioFile.samples[1][i] += buffer[1][i];
+        audioFile.samples[0][i] += buffer[0][i];                        // adding buffer to input file
+        audioFile.samples[1][i] += buffer[1][i];                        // to get four-echo effect
     }
 }
 
 void infiniteEcho(AudioFile<double> &audioFile, float gain) {
 
-
     const int offset = 22050;
-    int echoOffset = 22050;     // 1 sec
+    int echoOffset = 22050;     // 0.5 sec offset
 
     AudioFile<double>::AudioBuffer buffer;
 
-    buffer.resize(2);
+    buffer.resize(2);                                               // buffer has also two channels
 
-    buffer[0].resize(audioFile.getNumSamplesPerChannel());
+    buffer[0].resize(audioFile.getNumSamplesPerChannel());          // buffer size is the same as input
     buffer[1].resize(audioFile.getNumSamplesPerChannel());
 
     for (int i = 0; i < audioFile.getNumSamplesPerChannel() - 1; i++)
     {
-        gain = 0.5f;
+        gain = 0.5f;                                                    // gain is as at the begining       
         echoOffset = offset + i;
-        for (int j = 1; j < 10; j++)
+
+        for (int j = 1; j < 10; j++)                                    // loop to get infinite-echo
         {
             if (echoOffset >= audioFile.getNumSamplesPerChannel() - 1)
                 break;
 
-            buffer[0][echoOffset] += audioFile.samples[0][i] * gain;
-            buffer[1][echoOffset] += audioFile.samples[1][i] * gain;
-
-            echoOffset += offset;
+            buffer[0][echoOffset] += audioFile.samples[0][i] * gain;    // buffer plus offset equals value
+            buffer[1][echoOffset] += audioFile.samples[1][i] * gain;    // of input at the same place plus itself,
+                                                                        // but with next iteration it gets quieter
+            echoOffset += offset;                                       // and quieter
             gain *= 0.7f;
 
         }
@@ -140,8 +141,8 @@ void infiniteEcho(AudioFile<double> &audioFile, float gain) {
 
     for (int i = 0; i < audioFile.getNumSamplesPerChannel() - 1; i++)
     {
-        audioFile.samples[0][i] += buffer[0][i];
-        audioFile.samples[1][i] += buffer[1][i];
+        audioFile.samples[0][i] += buffer[0][i];                        // adding buffer to input file
+        audioFile.samples[1][i] += buffer[1][i];                        // to get infinite-echo effect
     }
 }
 
