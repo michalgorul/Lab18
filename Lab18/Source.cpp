@@ -9,6 +9,7 @@ void echoEffect(AudioFile<double> &audioFile, float &gain);
 void fourEchoEffect(AudioFile<double>& audioFile, float& gain);
 void fourEchoEffectCleaner(AudioFile<double>& audioFile, float& gain);
 void reverbffect(AudioFile<double>& audioFile, float& decay);
+void infiniteEcho(AudioFile<double>& audioFile, float gain);
 
 
 int main()
@@ -35,10 +36,11 @@ void loadAudioFileAndProcessSamples()
 
     //echoEffect(audioFile, gain);
     //fourEchoEffect(audioFile, gain);
-    fourEchoEffectCleaner(audioFile, gain);
+    //fourEchoEffectCleaner(audioFile, gain);
+    infiniteEcho(audioFile, gain);
     //reverbffect(audioFile, decay);
 
-    std::string outputFilePath = "four-echo-moje.wav";
+    std::string outputFilePath = "infinite-echo.wav";
     audioFile.save(outputFilePath);
 }
 
@@ -95,6 +97,44 @@ void fourEchoEffectCleaner(AudioFile<double>& audioFile, float& gain)
             buffer[1][echoOffset] += audioFile.samples[1][i] * gain;
 
             echoOffset += offset;
+        }
+    }
+
+    for (int i = 0; i < audioFile.getNumSamplesPerChannel() - 1; i++)
+    {
+        audioFile.samples[0][i] += buffer[0][i];
+        audioFile.samples[1][i] += buffer[1][i];
+    }
+}
+
+void infiniteEcho(AudioFile<double> &audioFile, float gain) {
+
+
+    const int offset = 22050;
+    int echoOffset = 22050;     // 1 sec
+
+    AudioFile<double>::AudioBuffer buffer;
+
+    buffer.resize(2);
+
+    buffer[0].resize(audioFile.getNumSamplesPerChannel());
+    buffer[1].resize(audioFile.getNumSamplesPerChannel());
+
+    for (int i = 0; i < audioFile.getNumSamplesPerChannel() - 1; i++)
+    {
+        gain = 0.5f;
+        echoOffset = offset + i;
+        for (int j = 1; j < 10; j++)
+        {
+            if (echoOffset >= audioFile.getNumSamplesPerChannel() - 1)
+                break;
+
+            buffer[0][echoOffset] += audioFile.samples[0][i] * gain;
+            buffer[1][echoOffset] += audioFile.samples[1][i] * gain;
+
+            echoOffset += offset;
+            gain *= 0.7f;
+
         }
     }
 
