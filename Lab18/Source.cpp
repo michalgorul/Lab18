@@ -10,6 +10,7 @@ void fourEchoEffect(AudioFile<double>& audioFile, float& gain);
 void fourEchoEffectCleaner(AudioFile<double>& audioFile, float& gain);
 void reverbffect(AudioFile<double>& audioFile, float& decay);
 void infiniteEcho(AudioFile<double>& audioFile, float gain);
+void overdriveEffect(AudioFile<double>& audioFile);
 
 
 int main()
@@ -25,7 +26,7 @@ void loadAudioFileAndProcessSamples()
     std::cout << "Load Audio File and Process Samples" << std::endl;
     std::cout << "**********************" << std::endl << std::endl;
 
-    const std::string inputFilePath = "test-audio.wav";
+    const std::string inputFilePath = "Alesis-Fusion-Clean-Guitar-C3.wav";
 
     AudioFile<double> audioFile;
     bool loadedOK = audioFile.load(inputFilePath);
@@ -37,10 +38,11 @@ void loadAudioFileAndProcessSamples()
     //echoEffect(audioFile, gain);
     //fourEchoEffect(audioFile, gain);
     //fourEchoEffectCleaner(audioFile, gain);
-    infiniteEcho(audioFile, gain);
+    //infiniteEcho(audioFile, gain);
     //reverbffect(audioFile, decay);
+    overdriveEffect(audioFile);
 
-    std::string outputFilePath = "infinite-echo.wav";
+    std::string outputFilePath = "OVERDRIVE.wav";
     audioFile.save(outputFilePath);
 }
 
@@ -217,5 +219,85 @@ void reverbffect(AudioFile<double>& audioFile, float& decay)
         audioFile.samples[1][echoOffset + i] += audioFile.samples[1][i] * decay;
     }
 
+}
+
+void overdriveEffect(AudioFile<double>& audioFile)
+{
+
+    // PARAMETER SETTING
+
+    float boost = 0.2;                     // user may specify boost 
+                            
+    float gain = ((boost / 100) * 100) + 1; // Equation 01 is used to rescaling input signal 
+                                            // by adjusting the ‘Boost’ value. After we get the gain,
+                                            // we can multiply gain to the input signal to get the boosted signal.
+
+    float drive = 50.0;                     // user may specify boost 
+                                            // range of the drive parameter ‘Drive’ is 0 < drive < 100
+                                            // In short, 0% ‘Drive’ value lead to a copied
+                                            // output while 100 % produce a square - liked output.
+
+    float a = sin(((drive + 1) / 101) * (M_PI / 2));
+
+    float k = 2 * a / (1 - a);
+
+
+    // x = (1 + k) * x / (1 + k * abs(x));        // to zrobiæ z ka¿dym elementem w tablicy
+
+
+    // INPUT SIGNAL PROCESSING
+
+    for (int i = 0; i < audioFile.getNumSamplesPerChannel(); i++)
+    {
+        audioFile.samples[0][i] *= gain;        // Manipulate the input signal by the gain function
+        audioFile.samples[1][i] *= gain;
+    }
+
+    // processed the gain of input signal, and return a gained signal
+
+
+    //  GAINED SIGNAL PROCESSING
+
+    for (int i = 0; i < audioFile.getNumSamplesPerChannel(); i++)
+    {
+        // Manipulate the Mgained signal by calling drive function.
+
+        audioFile.samples[0][i] = (1 + k) * audioFile.samples[0][i] / (1 + k * abs(audioFile.samples[0][i]));
+        audioFile.samples[1][i] = (1 + k) * audioFile.samples[0][i] / (1 + k * abs(audioFile.samples[0][i]));
+    }
+
+    // To distort the gained signal, and return an distorted output signal.
+
+    // DISTORTED SIGNAL PROCESSING
+
+    // poczytaæ to: http://www.exstrom.com/journal/sigproc/
+
+    // Defines a butterworth lowpass filter with center freq. 0.08 * sampling frequency
+    // Note: this processor only works with 'double'
+    // this filter is used as anti-aliasing filter from 10kHz sampling rate down to 4kHz
+
+    //const int NZEROS = 6;
+    //const int NPOLES = 6;
+    //const double GAIN = 9.339780497e+03;
+
+    //double xv[NZEROS + 1] = { 0.0 }, yv[NPOLES + 1] = { 0.0 };
+
+    //for (int i = 0; i < audioFile.getNumSamplesPerChannel(); i++)
+    //{
+    //    xv[0] = xv[1]; xv[1] = xv[2]; xv[2] = xv[3]; xv[3] = xv[4]; xv[4] = xv[5]; xv[5] = xv[6];
+    //    xv[6] = audioFile.samples[0][i] / GAIN;
+    //    xv[6] = audioFile.samples[1][i] / GAIN;
+
+    //    yv[0] = yv[1]; yv[1] = yv[2]; yv[2] = yv[3]; yv[3] = yv[4]; yv[4] = yv[5]; yv[5] = yv[6];
+    //    yv[6] = (xv[0] + xv[6]) + 6.0 * (xv[1] + xv[5]) + 15.0 * (xv[2] + xv[4])
+    //        + 20.0 * xv[3]
+    //        + (-0.1396600417 * yv[0]) + (1.1086708553 * yv[1])
+    //        + (-3.7230194289 * yv[2]) + (6.7850160254 * yv[3])
+    //        + (-7.0995038188 * yv[4]) + (4.0616439992 * yv[5]);
+
+    //    audioFile.samples[0][i] = yv[6];
+    //    audioFile.samples[1][i] = yv[6];
+   
+    //}
 }
 
